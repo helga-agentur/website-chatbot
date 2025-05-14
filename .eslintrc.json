@@ -1,0 +1,20 @@
+{
+  "root": true,
+  "extends": ["airbnb", "airbnb-typescript", "plugin:@typescript-eslint/strict-type-checked"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": ["@typescript-eslint"],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error", // Disallow the use of `any`
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowExpressions": false,  // Enforce return types on all functions
+        "allowHigherOrderFunctions": false, // Require types in higher-order functions
+        "allowTypedFunctionExpressions": false // Disallow omitted types in function expressions
+      }
+    ]
+  }
+}

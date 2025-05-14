@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    #chat { border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: auto; white-space: pre-wrap; }
+    #inputArea { margin-top: 1rem; display: flex; gap: 0.5rem; }
+    input { flex: 1; padding: 0.5rem; }
+    button { padding: 0.5rem 1rem; }
+    .user { font-weight: bold; color: #333; }
+    .assistant { color: #444; }
+  </style>
+</head>
+<body>
+  <h1>Chatbot</h1>
+  <div id="chat"></div>
+  <form id="inputArea">
+    <input id="input" type="text" autocomplete="off" placeholder="Ask something..." required />
+    <button type="submit">Send</button>
+  </form>
+
+  <script>
+    const chatBox = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const form = document.getElementById('inputArea');
+
+    const history = [];
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = input.value.trim();
+      if (!question) return;
+
+      appendMessage('user', question);
+      input.value = '';
+
+      const responseElem = appendMessage('assistant', '');
+
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Ignore (very) old history entries – not relevant any more and too much payload.
+        body: JSON.stringify({ question, history: history.slice(-20) })
+      });
+
+      history.push({ role: 'user', message: question });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let responseText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        responseText += chunk;
+
+        // Felix' code. The rest is OpenAI's masterpiece.
+        const linkRegex = /\[([^\]]+)\]\(([^\)]+)\)/g;
+        const withLinks = responseText.replaceAll(linkRegex, '<a href="$2">$1</a>'); 
+
+        const withIDK = withLinks.replaceAll('[IDontKnow]', '💔 – frag doch grad Janine.');
+        const withConsultation = withIDK.replaceAll('[ContactRecommendation]', 'Jute Frage! Stell sie Janine: 031 528 10 25.');
+
+        responseElem.innerHTML = withConsultation;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      }
+
+      history.push({ role: 'assistant', message: responseText });
+    });
+
+    function appendMessage(role, message) {
+      const div = document.createElement('div');
+      div.className = role;
+      div.textContent = (role === 'user' ? '🧑 ' : '⏳') + message;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
+    }
+  </script>
+</body>
+</html>
