@@ -1,4 +1,4 @@
-FROM node:20.19.2-bullseye-slim
+FROM node:22.15.1-bullseye-slim
 
 # Set working directory
 WORKDIR /app
@@ -16,8 +16,9 @@ RUN npm run build
 # Install cron and shell utilities
 RUN apt-get update && apt-get install -y cron dumb-init bash && apt-get clean
 
-# Register cron job to run fetchWebsite every 6 hours
-RUN echo "0 */6 * * * cd /app && npm run fetchWebsite >> /var/log/cron.log 2>&1" > /etc/cron.d/fetch-job \
+# Run fetchWebsite via cron at 00:00, 08:00, and 16:00 every day and log output to /var/log/cron.log
+RUN echo "# fetchWebsite runs at 00:00, 08:00, and 16:00 daily" > /etc/cron.d/fetch-job \
+  && echo "0 0,8,16 * * * cd /app && npm run fetchWebsite >> /var/log/cron.log 2>&1" >> /etc/cron.d/fetch-job \
   && chmod 0644 /etc/cron.d/fetch-job \
   && crontab /etc/cron.d/fetch-job
 
