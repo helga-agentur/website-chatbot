@@ -1,0 +1,25 @@
+services:
+
+  chatbot:
+    container_name: "${COMPOSE_PROJECT_NAME}_chatbot"
+    build: .
+    platform: linux/amd64
+    links:
+      - chroma
+    depends_on:
+      - chroma
+    ports:
+      - "${CHATBOT_PORT_HOST}:${SERVER_PORT}"
+    env_file:
+      - .env
+    networks:
+      - website-chatbot
+
+  chroma:
+    container_name: "${COMPOSE_PROJECT_NAME}_chroma"
+    image: chromadb/chroma
+    networks:
+      - website-chatbot
+networks:
+  website-chatbot:
+    driver: bridge

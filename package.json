@@ -9,7 +9,9 @@
     "build": "npx tsc",
     "test": "npx jest",
     "startChatbotServer": "npx tsc -w & npx dotenv -e .env -- nodemon dist/chatbotServer/startServer.js",
-    "fetchWebsite": "npx tsc && npx dotenv -e .env -- node dist/websiteFetcher/fetchEmbedStore.js"
+    "startChatbotServerProduction": "node dist/chatbotServer/startServer.js",
+    "fetchWebsite": "npx tsc && npx dotenv -e .env -- node dist/websiteFetcher/fetchEmbedStore.js",
+    "fetchWebsiteProduction": "node dist/websiteFetcher/fetchEmbedStore.js"
   },
   "keywords": [
     "chatbot",

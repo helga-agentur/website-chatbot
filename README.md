@@ -40,13 +40,16 @@ to Markdown, splits that markdown, embeds it and stores the chunks in a Chroma c
 Set the required variables in your `.env` file:
 
 ```bash
+# The name of the project. This is used to create a unique name for the docker images/container.
+COMPOSE_PROJECT_NAME=<name_of_the_project>
+CHATBOT_PORT_HOST=<port>
 JINA_API_KEY=<key>
 OPENAI_API_KEY=<key>
 # The URL to the website you want to fetch
 WEBSITE_BASE_URL=<url>
 CHROMA_COLLECTION_NAME=<name>
 CHROMA_URL=<url>
-SERVER_PORT=8000
+SERVER_PORT=3000
 SERVER_HOST=0.0.0.0
 EXPOSE_FRONTEND_REFERENCE_IMPLEMENTATION=false
 ```
@@ -64,3 +67,24 @@ docker run -v ./chroma-data:/data -p 8000:8000 chromadb/chroma
 
 `npm i`, then `npm run startChatbotServer`. Use [pm2](https://www.npmjs.com/package/pm2) or
 something to restart the server when the code fails.
+
+## Docker Compose
+
+You can also run the whole thing with Docker Compose.  
+The file `docker-compose.yml` creates the two containers
+
+- Chroma server
+- Chatbot server: The following scripts are executed here
+    - startChatbotServerProduction
+    - fetchWebsiteProduction (executed inital at startup and then via cron every 6 hours)
+
+```bash
+docker compose up -d
+```
+
+If the code has been changed, the image for the chatbot must be rebuilt:
+
+```bash
+docker compose build
+```
+
