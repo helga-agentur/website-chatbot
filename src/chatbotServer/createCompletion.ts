@@ -28,7 +28,7 @@ export default async ({
   console.log('history', historyForOpenAI);
   console.log('Trying to answer question: %s', question);
   const stream = await openAIClient.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     stream: true,
     messages: [
       {

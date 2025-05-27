@@ -13,7 +13,7 @@ export default async ({
   openAIClient: OpenAI
 }): Promise<string[]> => {
   const completion = await openAIClient.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-mini',
     messages: [
       {
         role: 'developer',
