@@ -85,6 +85,6 @@ docker compose up -d
 If the code has been changed, the image for the chatbot must be rebuilt:
 
 ```bash
-docker compose build
+docker compose up -d --build
 ```
 
