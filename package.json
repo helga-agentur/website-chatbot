@@ -1,5 +1,5 @@
 {
-  "name": "@helga/website-chatbot",
+  "name": "@helga-agency/website-chatbot",
   "version": "1.0.0",
   "description": "A chatbot module for Helga",
   "main": "dist/index.js",
