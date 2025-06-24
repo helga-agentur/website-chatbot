@@ -74,7 +74,7 @@ app.post('/chat', async (request, response): Promise<void> => {
       console.error('Invalid history type; expected array, got %o', typeof body.history);
     }
     history = body.history.filter(isValidHistoryEntry);
-    const invalidEntries = body.history.filter((item) => !isValidHistoryEntry(item));
+    const invalidEntries = body.history.filter((item): boolean => !isValidHistoryEntry(item));
     // Don't fail if only some entries are invalid
     if (invalidEntries.length > 0) {
       console.error('Invalid history entries: %o', invalidEntries);

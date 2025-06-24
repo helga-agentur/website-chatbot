@@ -60,9 +60,7 @@
         // Felix' code. The rest is OpenAI's masterpiece.
         const linkRegex = /\[([^\]]+)\]\(([^\)]+)\)/g;
         const withLinks = responseText.replaceAll(linkRegex, '<a href="$2">$1</a>'); 
-
-        const withIDK = withLinks.replaceAll('[IDontKnow]', '💔 – frag doch grad Janine.');
-        const withConsultation = withIDK.replaceAll('[ContactRecommendation]', 'Jute Frage! Stell sie Janine: 031 528 10 25.');
+        const withConsultation = withLinks.replaceAll('[ContactRecommendation]', 'Jute Frage! Stell sie Janine: 031 528 10 25.');
 
         responseElem.innerHTML = withConsultation;
         chatBox.scrollTop = chatBox.scrollHeight;
