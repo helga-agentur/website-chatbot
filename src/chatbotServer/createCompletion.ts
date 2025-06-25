@@ -57,8 +57,8 @@ export default async ({
           content with an unknown date over older content.
           The current date is ${new Date().toISOString()}.
 
-          If you can't answer the question, say so in a short, empatic sentence and add the exact
-          string [ContactRecommendation] after it.
+          If you can't answer the question, say so in a short, empatic sentence. Always add
+          [ContactRecommendation] after it.
 
           Prioritize the user's most recent message when generating a response; only use
           previous messages if they are relevant to the current question.
