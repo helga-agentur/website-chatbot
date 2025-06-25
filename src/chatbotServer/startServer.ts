@@ -1,5 +1,6 @@
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 import express from 'express';
 import { OpenAI } from 'openai';
 import createChromaClient from '../shared/createChromaClient.js';
@@ -14,6 +15,8 @@ import type { HistoryEntry } from './types';
  *   response cycle to speed up things)
  * - Starts the server and provides the routs needed
  */
+
+dotenv.config();
 
 const envVariablesMap = {
   openAIAPIKey: 'OPENAI_API_KEY',
