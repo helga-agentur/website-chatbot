@@ -25,7 +25,7 @@ export default async ({
 }): Promise<AsyncIterable<OpenAI.ChatCompletionChunk>> => {
   const beforeSearchTerms = new Date().getTime();
 
-  // That is a nice feature – but it costs between 500 and 1000ms. Don't use it for the moment.
+  // That is a nice feature – but it costs between 500 and 1000ms. Don't use it for the moment.
   const searchTerms = !improveSearchTerms
     ? [question]
     : [question, ...await generateSearchTerms({ openAIClient, question })];
@@ -57,7 +57,7 @@ export default async ({
     openAIClient,
   });
   const afterAnswer = new Date().getTime();
-  console.log('Answer took %d ms', (afterAnswer - afterQuery));
+  console.log('Completion took %d ms', (afterAnswer - afterQuery));
   console.log('Response after', new Date().getTime() - beforeEmbedding, 'ms');
 
   return streamingAnswer;

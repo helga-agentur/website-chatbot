@@ -13,7 +13,7 @@ export default async ({
   openAIClient: OpenAI
 }): Promise<string[]> => {
   const completion = await openAIClient.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-4.1-nano',
     messages: [
       {
         role: 'developer',
@@ -27,13 +27,6 @@ export default async ({
           also use the previous year to create search terms.
           Return the terms as a comma separated string.
         `,
-        // `
-        //   You are a search term generator for a search engine.
-        //   All content that can be fetched relates to VSAO Bern; therefore you don't have to
-        //   query for that term explicityl.
-        //   Given the user's input, return the search terms that we should feed the search engine
-        //   with.
-        // `
       }, {
         role: 'user',
         content: question,
