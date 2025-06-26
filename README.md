@@ -56,11 +56,47 @@ Run a Chroma server, e.g. locally (where we persist the data in `./chroma-data` 
 docker run -v ./chroma-data:/data -p 8000:8000 chromadb/chroma
 ```
 
+## Install
+Run:
+```bash
+npm i website-chatbot
+```
+
 ## Website Fetcher
 
-`npm i`, then `npm run fetchWebsite`
+To start the fetcher, run:
+```bash
+npx website-chatbot fetch --env .env` 
+```
+.env is the path to your .env file (relative to the current working directory).
 
 ## Chatbot Server
 
-`npm i`, then `npm run startChatbotServer`. Use [pm2](https://www.npmjs.com/package/pm2) or
-something to restart the server when the code fails.
+To start the fetcher, run:
+```bash
+npx website-chatbot serve --env .env` 
+```
+.env is the path to your .env file (relative to the current working directory).
+
+# Develop and Publish
+
+Before publishing, make sure to build the project:
+
+```bash
+npm run build
+```
+
+Then, publish the package:
+
+```bash
+npm publish
+```
+
+To test locally, run:
+
+```bash
+npm run build
+npm link
+# Now you can run the server with
+website-chatbot serve --env .env
+```

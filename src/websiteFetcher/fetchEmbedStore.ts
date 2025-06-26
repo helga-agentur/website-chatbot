@@ -14,73 +14,74 @@ import addWebsiteChunksToChroma from './addWebsiteChunksToChroma.js';
  *
  * Writes some logs, but just the ones needed for debugging.
  */
+export default async (): Promise<void> => {
+  const envVariablesMap = {
+    baseUrl: 'WEBSITE_BASE_URL',
+    openAIAPIKey: 'OPENAI_API_KEY',
+    jinaAPIKey: 'JINA_API_KEY',
+    chromaCollectionName: 'CHROMA_COLLECTION_NAME',
+    chromaURL: 'CHROMA_URL',
+  };
+  const envVariables = [...Object.entries(envVariablesMap)]
+    .map(([key, envName]): [string, string] => {
+      const value = process.env[envName];
+      if (!value) {
+        throw new Error(`Environment variable ${envName} is not set`);
+      }
+      return [key, value];
+    });
+  const keys = Object.fromEntries(envVariables);
 
-const envVariablesMap = {
-  baseUrl: 'WEBSITE_BASE_URL',
-  openAIAPIKey: 'OPENAI_API_KEY',
-  jinaAPIKey: 'JINA_API_KEY',
-  chromaCollectionName: 'CHROMA_COLLECTION_NAME',
-  chromaURL: 'CHROMA_URL',
-};
-const envVariables = [...Object.entries(envVariablesMap)]
-  .map(([key, envName]): [string, string] => {
-    const value = process.env[envName];
-    if (!value) {
-      throw new Error(`Environment variable ${envName} is not set`);
-    }
-    return [key, value];
+  // Setup the basic libraries we need
+  const openAIClient = new OpenAI();
+  const chromaClient = createChromaClient({ chromaURL: keys.chromaURL });
+  const chromaCollection = await getOrCreateCollection({
+    chromaClient,
+    collectionName: keys.chromaCollectionName,
   });
-const keys = Object.fromEntries(envVariables);
+  const splitterOptions = {
+    chunkOverlap: 120,
+    chunkSize: 500,
+  };
+  const splitter = new MarkdownTextSplitter(splitterOptions);
 
-// Setup the basic libraries we need
-const openAIClient = new OpenAI();
-const chromaClient = createChromaClient({ chromaURL: keys.chromaURL });
-const chromaCollection = await getOrCreateCollection({
-  chromaClient,
-  collectionName: keys.chromaCollectionName,
-});
-const splitterOptions = {
-  chunkOverlap: 120,
-  chunkSize: 500,
-};
-const splitter = new MarkdownTextSplitter(splitterOptions);
+  let currentDocumentNumber = 0;
 
-let currentDocumentNumber = 0;
+  /**
+   * Handles a document after it has been fetched: Extracts content (markdown), splits it into
+   * chunks and adds it to Chroma.
+   */
+  const handleDocument = async ({ content, url, mimeType }: HandleSuccessParams): Promise<void> => {
+    const { markdownContent, date } = await extractContent({
+      content,
+      mimeType,
+      url,
+      jinaAPIKey: keys.jinaAPIKey,
+      openAIAPIKey: keys.openAIAPIKey,
+    });
+    console.log('\n--- %d ---\n%s', currentDocumentNumber += 1, new Date().toISOString());
+    console.log('Handle %s, created on %s', url, date);
 
-/**
- * Handles a document after it has been fetched: Extracts content (markdown), splits it into
- * chunks and adds it to Chroma.
- */
-const handleDocument = async ({ content, url, mimeType }: HandleSuccessParams): Promise<void> => {
-  const { markdownContent, date } = await extractContent({
-    content,
-    mimeType,
-    url,
-    jinaAPIKey: keys.jinaAPIKey,
-    openAIAPIKey: keys.openAIAPIKey,
+    const chunks = await splitter.splitText(markdownContent);
+    console.log('Split into %d chunks', chunks.length);
+    await addWebsiteChunksToChroma({
+      collection: chromaCollection,
+      chunks,
+      url,
+      date,
+      openAIClient,
+    });
+  };
+
+  const crawler = new Crawler({
+    entryPointURL: keys.baseUrl,
+    guardrail: [keys.baseUrl],
+    // eslint-disable-next-line no-void
+    handleDocument: (...args): void => void handleDocument(...args),
+    handleError: (error: Error): void => {
+      console.error('Failed: %o', error);
+    },
+    logFunction: (): void => {},
   });
-  console.log('\n--- %d ---\n%s', currentDocumentNumber += 1, new Date().toISOString());
-  console.log('Handle %s, created on %s', url, date);
-
-  const chunks = await splitter.splitText(markdownContent);
-  console.log('Split into %d chunks', chunks.length);
-  await addWebsiteChunksToChroma({
-    collection: chromaCollection,
-    chunks,
-    url,
-    date,
-    openAIClient,
-  });
+  crawler.crawl();
 };
-
-const crawler = new Crawler({
-  entryPointURL: keys.baseUrl,
-  guardrail: [keys.baseUrl],
-  // eslint-disable-next-line no-void
-  handleDocument: (...args): void => void handleDocument(...args),
-  handleError: (error: Error): void => {
-    console.error('Failed: %o', error);
-  },
-  logFunction: (): void => {},
-});
-crawler.crawl();
