@@ -1,5 +1,6 @@
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import express from 'express';
 import { OpenAI } from 'openai';
 import createChromaClient from '../shared/createChromaClient.js';
@@ -54,6 +55,9 @@ export default async (): Promise<void> => {
   app.use(express.json());
 
   app.post('/chat', async (request, response): Promise<void> => {
+    // Use an unqiue ID per request across all logs to know which request the collected data
+    // belongs to
+    const requestID = randomUUID();
     type Body = { question: string; history?: HistoryEntry[] };
     const body = request.body as Body;
 
