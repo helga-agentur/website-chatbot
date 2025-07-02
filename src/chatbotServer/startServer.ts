@@ -46,8 +46,9 @@ export default async (): Promise<void> => {
   const app = express();
   const basePath = dirname(fileURLToPath(new URL(import.meta.url)));
 
-  // Provide a simple, dumb but well working frontend to test the API
-  if (keys.serveFrontend) {
+  // Provide a simple, dumb but well working frontend to test the API; .env provides the value
+  // as a string.
+  if (keys.serveFrontend === 'true') {
     app.use('/', express.static(join(basePath, '../../frontend')));
   }
 
