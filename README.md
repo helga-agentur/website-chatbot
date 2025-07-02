@@ -48,6 +48,8 @@ CHROMA_COLLECTION_NAME=<name>
 CHROMA_URL=<url>
 SERVER_PORT=8000
 SERVER_HOST=0.0.0.0
+# Valid values are "true" and "false"; defines if the chat frontend is served (good for debugging,
+# potential security risk for production)
 EXPOSE_FRONTEND_REFERENCE_IMPLEMENTATION=false
 ```
 
@@ -66,7 +68,7 @@ npm i website-chatbot
 
 To start the fetcher, run:
 ```bash
-npx website-chatbot fetch --env .env` 
+npx website-chatbot fetch --env .env
 ```
 .env is the path to your .env file (relative to the current working directory).
 
@@ -74,7 +76,7 @@ npx website-chatbot fetch --env .env`
 
 To start the fetcher, run:
 ```bash
-npx website-chatbot serve --env .env` 
+npx website-chatbot serve --env .env
 ```
 .env is the path to your .env file (relative to the current working directory).
 
