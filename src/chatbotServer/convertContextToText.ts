@@ -1,4 +1,6 @@
-import { QueryResponse } from 'chromadb';
+import { Collection } from 'chromadb';
+
+type QueryResponse = Awaited<ReturnType<Collection['query']>>;
 
 /**
  * Chroma returns structured data; we need it in a simple text form in order to pass it to the LLM.
