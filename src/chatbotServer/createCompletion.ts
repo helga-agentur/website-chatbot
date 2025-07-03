@@ -25,8 +25,6 @@ export default async ({
       content: message,
     }));
 
-  console.log('history', historyForOpenAI);
-  console.log('Trying to answer question: %s', question);
   const websiteURL = process.env.WEBSITE_BASE_URL;
   if (!websiteURL) {
     console.warn('Env variable WEBSITE_BASE_URL is not set. Not using it in the prompt.');
