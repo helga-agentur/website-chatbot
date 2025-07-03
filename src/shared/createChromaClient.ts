@@ -1,4 +1,4 @@
-import { ChromaClient } from "chromadb";
+import { ChromaClient } from 'chromadb';
 
 /**
  * Just exposes a chroma client; handled centrally if we need to update (shared) config.

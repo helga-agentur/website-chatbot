@@ -1,4 +1,6 @@
-import { Collection, QueryResponse } from 'chromadb';
+import { Collection } from 'chromadb';
+
+type QueryResponse = Awaited<ReturnType<Collection['query']>>;
 
 /**
  * Takes the input question and queries the knowledge base.
