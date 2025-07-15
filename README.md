@@ -51,6 +51,8 @@ SERVER_HOST=0.0.0.0
 # Valid values are "true" and "false"; defines if the chat frontend is served (good for debugging,
 # potential security risk for production)
 EXPOSE_FRONTEND_REFERENCE_IMPLEMENTATION=false
+# If you want to persist logs, provide a path to where the log file should be written
+LOG_FILE_PATH=./logs/server.log
 ```
 
 Run a Chroma server, e.g. locally (where we persist the data in `./chroma-data` that must exist): 

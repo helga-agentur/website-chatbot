@@ -6,6 +6,7 @@ import convertContextToText from './convertContextToText.js';
 import generateSearchTerms from './generateSearchTerms.js';
 import createCompletion from './createCompletion.js';
 import type { HistoryEntry } from './types';
+import log from '../shared/log.js';
 
 /**
  * Does basically everything needed once we get a question as input
@@ -15,12 +16,14 @@ export default async ({
   openAIClient,
   history,
   chromaCollection,
+  requestID,
   improveSearchTerms = false,
 }: {
   question: string;
   openAIClient: OpenAI;
   history: HistoryEntry[];
   chromaCollection: Collection;
+  requestID: string;
   improveSearchTerms?: boolean,
 }): Promise<AsyncIterable<OpenAI.ChatCompletionChunk>> => {
   const beforeSearchTerms = new Date().getTime();
@@ -30,16 +33,25 @@ export default async ({
     ? [question]
     : [question, ...await generateSearchTerms({ openAIClient, question })];
 
-  console.log('Search terms are', searchTerms);
+  log({
+    requestID,
+    message: `Search terms are ${JSON.stringify(searchTerms)}`,
+  });
   const beforeEmbedding = new Date().getTime();
-  console.log('Search terms took %d ms', (beforeEmbedding - beforeSearchTerms));
+  log({
+    requestID,
+    message: `Generating search terms took ${(beforeEmbedding - beforeSearchTerms).toString()} ms.`,
+  });
 
   const [embeddedQuestion] = await getEmbeddings({
     openAIClient,
     content: [question, ...searchTerms],
   });
   const afterEmbedding = new Date().getTime();
-  console.log('Embedding took %d ms', (afterEmbedding - beforeEmbedding));
+  log({
+    requestID,
+    message: `Embedding the question and all search terms took ${(afterEmbedding - beforeEmbedding).toString()} ms.`,
+  });
 
   const context = await queryKnowledgeBase({
     embeddedQuery: embeddedQuestion,
@@ -47,8 +59,14 @@ export default async ({
   });
   const contextAsText = convertContextToText({ context });
   const afterQuery = new Date().getTime();
-  console.log('Query took %d ms', (afterQuery - afterEmbedding));
-  console.log('Context is', contextAsText);
+  log({
+    requestID,
+    message: `Querying chroma for context took ${(afterQuery - afterEmbedding).toString()} ms.`,
+  });
+  log({
+    requestID,
+    message: `Context is ${JSON.stringify(contextAsText)}`,
+  });
 
   const streamingAnswer = await createCompletion({
     question,
@@ -57,8 +75,14 @@ export default async ({
     openAIClient,
   });
   const afterAnswer = new Date().getTime();
-  console.log('Completion took %d ms', (afterAnswer - afterQuery));
-  console.log('Response after', new Date().getTime() - beforeEmbedding, 'ms');
+  log({
+    requestID,
+    message: `Creating the completion from question, context and history on OpenAI took ${(afterAnswer - afterQuery).toString()} ms.`,
+  });
+  log({
+    requestID,
+    message: `Answer started streaming after ${(new Date().getTime() - beforeSearchTerms).toString()} ms.`,
+  });
 
   return streamingAnswer;
 };
