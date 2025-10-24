@@ -34,12 +34,14 @@ program
 program
   .command('fetch')
   .option('-e, --env <path>', 'path to the .env file')
+  .option('-d, --delete', 'delete the collection before creating a new one and starting to fetch')
   .action((options): void => {
     console.log('Starting to fetch data …');
     if (options !== null && typeof options === 'object' && 'env' in options) {
+      const resetCollection = (options as { delete?: boolean }).delete;
       const { env } = options as { env: string };
       importEnvFile(env);
-      fetchEmbedStore()
+      fetchEmbedStore({ resetCollection })
         .catch((error: unknown): void => {
           console.error(error);
         });
