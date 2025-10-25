@@ -72,7 +72,8 @@ To start the fetcher, run:
 ```bash
 npx website-chatbot fetch --env .env
 ```
-.env is the path to your .env file (relative to the current working directory).
+.env is the path to your .env file (relative to the current working directory). Use the `-d` option
+to delete an existing collection and create a new, empty one.
 
 ## Chatbot Server
 

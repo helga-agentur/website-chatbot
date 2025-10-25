@@ -13,8 +13,15 @@ import addWebsiteChunksToChroma from './addWebsiteChunksToChroma.js';
  * - Handles the crawler's output by extracting content, splitting it and adding it to Chroma
  *
  * Writes some logs, but just the ones needed for debugging.
+ *
+ * @param {object} options
+ * @param {string} options.resetCollection - Delete the collection before creating a newone.
  */
-export default async (): Promise<void> => {
+export default async ({
+  resetCollection = false,
+}: {
+  resetCollection?: boolean
+} = {}): Promise<void> => {
   const envVariablesMap = {
     baseUrl: 'WEBSITE_BASE_URL',
     openAIAPIKey: 'OPENAI_API_KEY',
@@ -38,6 +45,7 @@ export default async (): Promise<void> => {
   const chromaCollection = await getOrCreateCollection({
     chromaClient,
     collectionName: keys.chromaCollectionName,
+    deleteExistingCollection: resetCollection,
   });
   const splitterOptions = {
     chunkOverlap: 120,
