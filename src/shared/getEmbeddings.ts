@@ -12,7 +12,7 @@ export default async ({
   content: string[]
 }): Promise<number[][]> => {
   const response = await openAIClient.embeddings.create({
-    model: 'text-embedding-3-large',
+    model: 'text-embedding-3-small',
     input: content,
   });
   // If input is an array, data will be an array of the same length.
