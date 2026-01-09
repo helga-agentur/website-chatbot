@@ -64,7 +64,7 @@ export default async (): Promise<void> => {
 
     type Body = { question: string; history?: HistoryEntry[] };
     const body = request.body as Body;
-    log({ requestID, message: `Request received on ${new Date().toISOString()}; body is ${JSON.stringify(body)}` });
+    log({ requestID, message: `Request received on ${new Date().toLocaleString()}; body is ${JSON.stringify(body)}` });
 
     // It's mandatory to parse the request properly as we pass it around afterwards.
     if (!body.question) {
