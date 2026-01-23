@@ -16,8 +16,14 @@ export default async ({
   deleteExistingCollection?: boolean,
 }): Promise<Collection> => {
   if (deleteExistingCollection) {
-    console.log('Deleting existing collection %s (if it exsists)', collectionName);
-    await chromaClient.deleteCollection({ name: collectionName });
+    const collections = await chromaClient.listCollections();
+    const exists = collections.some(({ name }): boolean => name === collectionName);
+    if (!exists) {
+      console.warn('Cannot delete collection %s: It does not exist', collectionName);
+    } else {
+      console.log('Deleting existing collection %s', collectionName);
+      await chromaClient.deleteCollection({ name: collectionName });
+    }
   }
   return chromaClient.getOrCreateCollection({ name: collectionName });
 };

@@ -30,7 +30,7 @@ export default async ({
     console.warn('Env variable WEBSITE_BASE_URL is not set. Not using it in the prompt.');
   }
   const stream = await openAIClient.chat.completions.create({
-    model: 'gpt-4.1-nano',
+    model: 'gpt-5-nano',
     stream: true,
     response_format: { type: 'text' },
     messages: [

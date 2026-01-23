@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import OpenAI from 'openai';
 import { Crawler, extractContent, type HandleSuccessParams } from 'scrapino';
 import { MarkdownTextSplitter } from 'langchain/text_splitter';
 import createChromaClient from '../shared/createChromaClient.js';
