@@ -136,3 +136,6 @@ dist
 .pnp.*
 
 chroma-data
+
+# Integration test results
+testResults.csv
