@@ -40,4 +40,11 @@ describe('buildSystemPrompt', (): void => {
     expect(prompt).toContain('multiple meanings');
     expect(prompt).toContain('clarifying question');
   });
+
+  it('includes sensitive topic handling', (): void => {
+    const prompt = buildSystemPrompt(baseOptions);
+    expect(prompt).toContain('sensitive topics');
+    expect(prompt).toContain('thorough');
+    expect(prompt).toContain('Do NOT summarize briefly');
+  });
 });
