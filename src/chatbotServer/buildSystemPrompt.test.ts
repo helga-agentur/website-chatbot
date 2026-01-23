@@ -34,4 +34,10 @@ describe('buildSystemPrompt', (): void => {
     expect(prompt).toContain('ONLY answer questions');
     expect(prompt).toContain('HR-Themen');
   });
+
+  it('includes disambiguation guidance', (): void => {
+    const prompt = buildSystemPrompt(baseOptions);
+    expect(prompt).toContain('multiple meanings');
+    expect(prompt).toContain('clarifying question');
+  });
 });
