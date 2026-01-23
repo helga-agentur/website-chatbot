@@ -29,14 +29,21 @@ export default async ({
     );
 
   const websiteUrl = process.env.WEBSITE_BASE_URL ?? '';
+  const websiteTopic = process.env.WEBSITE_TOPIC ?? '';
   if (!websiteUrl) {
     console.warn(
       'Env variable WEBSITE_BASE_URL is not set. Not using it in the prompt.',
     );
   }
+  if (!websiteTopic) {
+    console.warn(
+      'Env variable WEBSITE_TOPIC is not set. Not using it in the prompt.',
+    );
+  }
 
   const systemPrompt = buildSystemPrompt({
     websiteUrl,
+    websiteTopic,
     context: contextAsText,
     currentDate: new Date(),
   });
