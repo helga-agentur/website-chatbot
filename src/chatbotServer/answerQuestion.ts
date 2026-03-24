@@ -1,5 +1,5 @@
 import { Collection } from 'chromadb';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import queryKnowledgeBase from './queryKnowledgeBase.js';
 import getEmbeddings from '../shared/getEmbeddings.js';
 import convertContextToText from './convertContextToText.js';
@@ -13,25 +13,27 @@ import log from '../shared/log.js';
  */
 export default async ({
   question,
-  openAIClient,
+  completionsClient,
+  jinaApiKey,
   history,
   chromaCollection,
   requestID,
   improveSearchTerms = false,
 }: {
   question: string;
-  openAIClient: OpenAI;
+  completionsClient: Anthropic;
+  jinaApiKey: string;
   history: HistoryEntry[];
   chromaCollection: Collection;
   requestID: string;
   improveSearchTerms?: boolean,
-}): Promise<AsyncIterable<OpenAI.ChatCompletionChunk>> => {
+}): Promise<AsyncGenerator<string>> => {
   const beforeSearchTerms = new Date().getTime();
 
   // That is a nice feature – but it costs between 500 and 1000ms. Don't use it for the moment.
   const searchTerms = !improveSearchTerms
     ? [question]
-    : [question, ...await generateSearchTerms({ openAIClient, question })];
+    : [question, ...await generateSearchTerms({ completionsClient, question })];
 
   log({
     requestID,
@@ -44,8 +46,9 @@ export default async ({
   });
 
   const [embeddedQuestion] = await getEmbeddings({
-    openAIClient,
+    jinaApiKey,
     content: [question, ...searchTerms],
+    task: 'retrieval.query',
   });
   const afterEmbedding = new Date().getTime();
   log({
@@ -72,12 +75,12 @@ export default async ({
     question,
     contextAsText,
     history,
-    openAIClient,
+    completionsClient,
   });
   const afterAnswer = new Date().getTime();
   log({
     requestID,
-    message: `Creating the completion from question, context and history on OpenAI took ${(afterAnswer - afterQuery).toString()} ms.`,
+    message: `Creating the completion took ${(afterAnswer - afterQuery).toString()} ms.`,
   });
   log({
     requestID,

@@ -1,6 +1,6 @@
 # Intro
 
-[Chroma](https://www.trychroma.com/) and [ChatGPT](https://chatgpt.com/) based chatbot. Provides
+[Chroma](https://www.trychroma.com/), [Claude](https://www.anthropic.com/) and [Jina AI](https://jina.ai/) based chatbot. Provides
 the needed functionalities to answer questions based on a website's contents:
 
 1. A chatbot server: Uses RAG to answer a user's questions based on content queried from a Chroma
@@ -22,8 +22,8 @@ The endpoint is `/chat` and takes a JSON body with the following fields:
 - `history`: A list of previous messages, each with a `role` (either 'user' or 'assistant') and a
 `message` field; newest message first.
 
-The response is a stream of chunks as returned by OpenAI's API. See the [reference implementation
-of the client](frontend/index.html). 
+The response is a plain text stream of chunks. See the [reference implementation
+of the client](frontend/index.html).
 
 One important thing to note: The history is currently stored on the client and can therefore
 be manipulated by the user. That should not be a big issue, as the user's input can never be
@@ -40,8 +40,10 @@ to Markdown, splits that markdown, embeds it and stores the chunks in a Chroma c
 Set the required variables in your `.env` file:
 
 ```bash
+# API key for Anthropic Claude — used by the chatbot server for completions
+ANTHROPIC_API_KEY=<key>
+# API key for Jina AI — used for embeddings (both server and fetcher) and HTML→text extraction
 JINA_API_KEY=<key>
-OPENAI_API_KEY=<key>
 # The URL to the website you want to fetch
 WEBSITE_BASE_URL=<url>
 CHROMA_COLLECTION_NAME=<name>
@@ -77,11 +79,37 @@ to delete an existing collection and create a new, empty one.
 
 ## Chatbot Server
 
-To start the fetcher, run:
+To start the chatbot server, run:
 ```bash
 npx website-chatbot serve --env .env
 ```
 .env is the path to your .env file (relative to the current working directory).
+
+# Testing
+
+Unit tests:
+```bash
+npm test
+```
+
+Integration tests — no database required (uses a mock context file):
+```bash
+npm run test:csv
+```
+Reads from `testCases.csv`, runs each question against the static context in `testContext.md`,
+scores each response with Claude, and writes results to `testResults.csv` (0–10).
+
+Integration tests — requires a live database (real RAG pipeline against vsao-bern.ch content):
+```bash
+npm run test:csv:db
+```
+Reads from `testCasesDb.csv`, runs each question through the full pipeline (Jina embeddings →
+Chroma query → Claude), scores with Claude, and writes results to `testResultsDb.csv`.
+
+Required setup for `test:csv:db`:
+- A running Chroma server (`CHROMA_URL`, `CHROMA_COLLECTION_NAME` set in `.env`)
+- The collection must be populated with vsao-bern.ch content (run `npm run fetchWebsite` first)
+- `JINA_API_KEY`, `WEBSITE_BASE_URL`, and `WEBSITE_TOPIC` set in `.env`
 
 # Develop and Publish
 

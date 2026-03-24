@@ -139,3 +139,6 @@ chroma-data
 
 # Integration test results
 testResults.csv
+testResultsDb.csv
+
+.DS_Store

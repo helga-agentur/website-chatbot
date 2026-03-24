@@ -1,32 +1,27 @@
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import type { HistoryEntry } from './types';
 import buildSystemPrompt from './buildSystemPrompt.js';
 
 /**
- * Sends question, context and history to OpenAI and returns the answer as a stream.
+ * Sends question, context and history to Claude and returns the answer as a stream of text chunks.
  */
-export default async ({
+export default async function* ({
   question,
   contextAsText,
   history,
-  openAIClient,
+  completionsClient,
 }: {
   question: string;
   contextAsText: string;
   history: HistoryEntry[];
-  openAIClient: OpenAI;
-}): Promise<AsyncIterable<OpenAI.ChatCompletionChunk>> => {
-  const historyForOpenAI = history
+  completionsClient: Anthropic;
+}): AsyncGenerator<string> {
+  const historyMessages = history
     // Don't pass too much history in; it's not really relevant any more, eats up tokens and costs.
     .slice(-12)
     // History comes in latest-first; we need the latest at the bottom (and start with the current
     // input)
-    .map(
-      ({ role, message }): OpenAI.ChatCompletionMessageParam => ({
-        role,
-        content: message,
-      }),
-    );
+    .map(({ role, message }): Anthropic.MessageParam => ({ role, content: message }));
 
   const websiteUrl = process.env.WEBSITE_BASE_URL ?? '';
   const websiteTopic = process.env.WEBSITE_TOPIC ?? '';
@@ -48,22 +43,20 @@ export default async ({
     currentDate: new Date(),
   });
 
-  const stream = await openAIClient.chat.completions.create({
-    model: 'gpt-5-nano',
-    stream: true,
-    response_format: { type: 'text' },
+  const stream = completionsClient.messages.stream({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 8096,
+    system: systemPrompt,
     messages: [
-      {
-        role: 'developer',
-        content: systemPrompt,
-      },
-      ...historyForOpenAI,
+      ...historyMessages,
       // Funnily, the most recent question comes last
-      {
-        role: 'user',
-        content: `This is the main question: ${question}`,
-      },
+      { role: 'user', content: `This is the main question: ${question}` },
     ],
   });
-  return stream;
-};
+
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      yield event.delta.text;
+    }
+  }
+}
