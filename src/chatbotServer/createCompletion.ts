@@ -19,7 +19,7 @@ export default async function* ({
   const historyMessages = history
     // Don't pass too much history in; it's not really relevant any more, eats up tokens and costs.
     .slice(-12)
-    // History is oldest-first, which is exactly what Claude expects.
+    // History is oldest-first
     .map(({ role, message }): Anthropic.MessageParam => ({ role, content: message }));
 
   const websiteUrl = process.env.WEBSITE_BASE_URL ?? '';
