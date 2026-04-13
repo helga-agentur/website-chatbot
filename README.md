@@ -20,7 +20,7 @@ The endpoint is `/chat` and takes a JSON body with the following fields:
 
 - `question`: The question to answer
 - `history`: A list of previous messages, each with a `role` (either 'user' or 'assistant') and a
-`message` field; newest message first.
+`message` field; oldest message first.
 
 The response is a plain text stream of chunks. See the [reference implementation
 of the client](frontend/index.html).
