@@ -9,8 +9,7 @@
  */
 /* eslint-disable no-console, no-await-in-loop, no-restricted-syntax */
 import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { parse } from 'csv-parse/sync';
 import Anthropic from '@anthropic-ai/sdk';
 import createCompletion from '../createCompletion.js';
@@ -18,8 +17,9 @@ import {
   TestCase, TestResult, collectStream, assessQuality, writeResults, averageScore,
 } from './testUtils.js';
 
-// Compiled JS runs from dist/, but test files live in src/
-const currentDir = dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/');
+// Fixtures live in src/ and are resolved relative to the project root, which is always
+// the working directory when running via npm scripts.
+const fixturesDir = join(process.cwd(), 'src/chatbotServer/integrationTests');
 
 async function runTestCase(
   testCase: TestCase,
@@ -44,11 +44,11 @@ async function runTests(): Promise<void> {
   process.env.WEBSITE_BASE_URL = 'https://example.com';
   process.env.WEBSITE_TOPIC = 'Arbeitsrecht und HR-Themen';
 
-  const inputPath = join(currentDir, 'testCases.csv');
-  const outputPath = join(currentDir, 'testResults.csv');
+  const inputPath = join(fixturesDir, 'testCases.csv');
+  const outputPath = join(fixturesDir, 'testResults.csv');
 
   const testCases: TestCase[] = parse(readFileSync(inputPath, 'utf-8'), { columns: true, skip_empty_lines: true });
-  const context = readFileSync(join(currentDir, 'testContext.md'), 'utf-8');
+  const context = readFileSync(join(fixturesDir, 'testContext.md'), 'utf-8');
   console.log(`Found ${testCases.length} test cases`);
 
   const results: TestResult[] = [];

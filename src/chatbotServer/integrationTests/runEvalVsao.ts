@@ -8,8 +8,7 @@
  */
 /* eslint-disable no-console, no-await-in-loop, no-restricted-syntax */
 import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { randomUUID } from 'crypto';
 import { parse } from 'csv-parse/sync';
 import Anthropic from '@anthropic-ai/sdk';
@@ -21,8 +20,9 @@ import {
   TestCase, TestResult, collectStream, assessQuality, writeResults, averageScore,
 } from './testUtils.js';
 
-// Compiled JS runs from dist/, but test files live in src/
-const currentDir = dirname(fileURLToPath(import.meta.url)).replace('/dist/', '/src/');
+// Fixtures live in src/ and are resolved relative to the project root, which is always
+// the working directory when running via npm scripts.
+const fixturesDir = join(process.cwd(), 'src/chatbotServer/integrationTests');
 
 /**
  * All environment variables required by this runner.
@@ -101,8 +101,8 @@ async function runTests(): Promise<void> {
   const env = loadEnv();
   const { completionsClient, chromaCollection } = await setupClients(env);
 
-  const inputPath = join(currentDir, 'evalCasesVsao.csv');
-  const outputPath = join(currentDir, 'evalResultsVsao.csv');
+  const inputPath = join(fixturesDir, 'evalCasesVsao.csv');
+  const outputPath = join(fixturesDir, 'evalResultsVsao.csv');
 
   const testCases = loadTestCases(inputPath);
   console.log(`Found ${testCases.length} test cases`);
