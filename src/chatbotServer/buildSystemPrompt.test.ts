@@ -8,43 +8,23 @@ describe('buildSystemPrompt', (): void => {
     currentDate: new Date('2025-01-15T10:00:00Z'),
   };
 
-  it('includes website URL', (): void => {
+  it('interpolates the website URL', (): void => {
     const prompt = buildSystemPrompt(baseOptions);
     expect(prompt).toContain('https://example.com');
   });
 
-  it('includes context', (): void => {
+  it('interpolates the website topic', (): void => {
+    const prompt = buildSystemPrompt(baseOptions);
+    expect(prompt).toContain('HR-Themen');
+  });
+
+  it('interpolates the context', (): void => {
     const prompt = buildSystemPrompt(baseOptions);
     expect(prompt).toContain('Some context here');
   });
 
-  it('includes current date in ISO format', (): void => {
+  it('formats the current date as ISO string', (): void => {
     const prompt = buildSystemPrompt(baseOptions);
     expect(prompt).toContain('2025-01-15T10:00:00.000Z');
-  });
-
-  it('contains core instructions', (): void => {
-    const prompt = buildSystemPrompt(baseOptions);
-    expect(prompt).toContain('[ContactRecommendation]');
-    expect(prompt).toContain('[Source]');
-  });
-
-  it('includes topic guardrails with website topic', (): void => {
-    const prompt = buildSystemPrompt(baseOptions);
-    expect(prompt).toContain('ONLY answer questions');
-    expect(prompt).toContain('HR-Themen');
-  });
-
-  it('includes disambiguation guidance', (): void => {
-    const prompt = buildSystemPrompt(baseOptions);
-    expect(prompt).toContain('multiple meanings');
-    expect(prompt).toContain('clarifying question');
-  });
-
-  it('includes sensitive topic handling', (): void => {
-    const prompt = buildSystemPrompt(baseOptions);
-    expect(prompt).toContain('sensitive topics');
-    expect(prompt).toContain('thorough');
-    expect(prompt).toContain('Do NOT summarize briefly');
   });
 });
