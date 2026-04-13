@@ -4,7 +4,7 @@
  * Runs test cases through the full RAG pipeline (real Chroma DB + Jina embeddings)
  * against vsao-bern.ch content. Requires a populated Chroma collection.
  *
- * Run with: npm run test:csv:db
+ * Run with: npm run eval:vsao
  */
 /* eslint-disable no-console, no-await-in-loop, no-restricted-syntax */
 import { readFileSync } from 'fs';

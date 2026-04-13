@@ -102,14 +102,15 @@ npm run test:csv
 Reads from `testCases.csv`, runs each question against the static context in `testContext.md`,
 scores each response with Claude, and writes results to `testResults.csv` (0–10).
 
-Integration tests — requires a live database (real RAG pipeline against vsao-bern.ch content):
+Non-deterministic LLM-scored evaluation against live vsao-bern.ch data:
 ```bash
-npm run test:csv:db
+npm run eval:vsao
 ```
-Reads from `testCasesDb.csv`, runs each question through the full pipeline (Jina embeddings →
-Chroma query → Claude), scores with Claude, and writes results to `testResultsDb.csv`.
+Reads from `testCasesDb.csv`, runs each question through the full RAG pipeline (Jina embeddings →
+Chroma query → Claude), scores each response with Claude Haiku, and writes results to
+`testResultsDb.csv`. Results vary between runs — not suitable as a CI gate.
 
-Required setup for `test:csv:db`:
+Required setup for `eval:vsao`:
 - A running Chroma server (`CHROMA_URL`, `CHROMA_COLLECTION_NAME` set in `.env`)
 - The collection must be populated with vsao-bern.ch content (run `npm run fetchWebsite` first)
 - `JINA_API_KEY`, `WEBSITE_BASE_URL`, and `WEBSITE_TOPIC` set in `.env`
