@@ -106,9 +106,9 @@ Non-deterministic LLM-scored evaluation against live vsao-bern.ch data:
 ```bash
 npm run eval:vsao
 ```
-Reads from `testCasesDb.csv`, runs each question through the full RAG pipeline (Jina embeddings →
+Reads from `evalCasesVsao.csv`, runs each question through the full RAG pipeline (Jina embeddings →
 Chroma query → Claude), scores each response with Claude Haiku, and writes results to
-`testResultsDb.csv`. Results vary between runs — not suitable as a CI gate.
+`evalResultsVsao.csv`. Results vary between runs — not suitable as a CI gate.
 
 Required setup for `eval:vsao`:
 - A running Chroma server (`CHROMA_URL`, `CHROMA_COLLECTION_NAME` set in `.env`)

@@ -9,7 +9,7 @@
     "build": "npx tsc && chmod +x dist/cli.js",
     "test": "npx jest",
     "test:csv": "npx tsc && npx dotenv -e .env -- node dist/chatbotServer/integrationTests/runTestCases.js",
-    "eval:vsao": "npx tsc && npx dotenv -e .env -- node dist/chatbotServer/integrationTests/runTestCasesDb.js",
+    "eval:vsao": "npx tsc && npx dotenv -e .env -- node dist/chatbotServer/integrationTests/runEvalVsao.js",
     "startChatbotServer": "npx tsc -w & npx dotenv -e .env -- nodemon dist/chatbotServer/startServer.js",
     "fetchWebsite": "npx tsc && npx dotenv -e .env -- node dist/websiteFetcher/fetchEmbedStore.js"
   },

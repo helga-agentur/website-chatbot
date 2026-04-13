@@ -101,8 +101,8 @@ async function runTests(): Promise<void> {
   const env = loadEnv();
   const { completionsClient, chromaCollection } = await setupClients(env);
 
-  const inputPath = join(currentDir, 'testCasesDb.csv');
-  const outputPath = join(currentDir, 'testResultsDb.csv');
+  const inputPath = join(currentDir, 'evalCasesVsao.csv');
+  const outputPath = join(currentDir, 'evalResultsVsao.csv');
 
   const testCases = loadTestCases(inputPath);
   console.log(`Found ${testCases.length} test cases`);
