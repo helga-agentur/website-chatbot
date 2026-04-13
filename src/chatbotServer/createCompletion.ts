@@ -48,14 +48,20 @@ export default async function* ({
     system: systemPrompt,
     messages: [
       ...historyMessages,
-      // Funnily, the most recent question comes last
       { role: 'user', content: `This is the main question: ${question}` },
     ],
   });
 
-  for await (const event of stream) {
-    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-      yield event.delta.text;
+  try {
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        yield event.delta.text;
+      }
     }
+  } finally {
+    // Abort the underlying HTTP request if the generator is abandoned before the stream
+    // ends (e.g. the client disconnects mid-response). No-op when the stream already
+    // completed normally.
+    stream.abort();
   }
 }
