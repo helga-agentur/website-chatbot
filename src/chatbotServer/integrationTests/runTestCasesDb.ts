@@ -113,10 +113,16 @@ async function runTests(): Promise<void> {
     const result = await runTestCase(testCase, completionsClient, chromaCollection, env.jinaApiKey);
     results.push(result);
     console.log(`  Score: ${result.qualityScore}/10`);
+    // Write after every case: the run takes several minutes and may fail mid-way
+    // (e.g. rate limit, network error). Writing incrementally preserves all
+    // results evaluated so far instead of losing everything on failure.
+    writeResults(outputPath, results);
+    // Avoid hitting the input token rate limit (10k tokens/min on Sonnet).
+    // Skip the delay after the last case so results are written immediately.
+    if (i < testCases.length - 1) await new Promise((resolve) => { setTimeout(resolve, 30_000); });
   }
 
   console.log(`\nAverage score: ${averageScore(results).toFixed(1)}/10`);
-  writeResults(outputPath, results);
   console.log(`Results written to ${outputPath}`);
 }
 
