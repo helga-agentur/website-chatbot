@@ -44,6 +44,9 @@ Set the required variables in your `.env` file:
 ANTHROPIC_API_KEY=<key>
 # API key for Jina AI — used for embeddings (both server and fetcher) and HTML→text extraction
 JINA_API_KEY=<key>
+# API key for OpenAI — used by scrapino (the fetcher dependency) for PDF/document extraction;
+# only required when running the website fetcher, not the chatbot server
+OPENAI_API_KEY=<key>
 # The URL to the website you want to fetch
 WEBSITE_BASE_URL=<url>
 CHROMA_COLLECTION_NAME=<name>
