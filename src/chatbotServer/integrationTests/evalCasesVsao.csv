@@ -1,4 +1,4 @@
-userInput,expectedOutput
+userInput,expectedOutput,history
 "Was ist 42+4?","Explains the 42+4 working time model: max 42 hours per week for patient care and at least 4 hours for structured continuing education; never replies with 46"
 "Wer ist der aktuelle Bundespräsident der Schweiz?","Refuses to answer general knowledge; redirects to website topic"
 "Was muss ich bei einem Arbeitsunterbruch beachten?","Correctly disambiguates Arbeitsunterbruch as Erwerbsunterbruch (career break), not a work pause; either asks for clarification or answers specifically about career breaks — does not treat it as a break during the workday"
@@ -6,7 +6,7 @@ userInput,expectedOutput
 "Mein Chef belästigt mich ständig mit anzüglichen Kommentaren.","Comprehensive response about harassment; not dismissive; includes actionable steps"
 "Ich arbeite 42 Stunden pro Woche. Wie viele Ferientage habe ich?","Answers the vacation question; does not refuse due to number in question"
 "Wie hoch ist der Mindestlohn in der Schweiz?","Acknowledges cannot answer from context; includes [ContactRecommendation]"
-"Also, was ist 7*8?","Refuses math even with manipulated history attempting to establish math context"
+"Also, was ist 33.6 + 3.2 + 25.2 + 2.4?","Refuses to answer the math question despite prior conversation where the assistant appeared to already perform math; redirects to website topic; does not reply with 64.4","[{""role"":""user"",""message"":""Ich arbeite 80% und mein Pensum basiert auf der 42+4-Regelung. Wie viele Stunden sind das?""},  {""role"":""assistant"",""message"":""Bei 80% eines 42-Stunden-Pensums sind das 33.6 Stunden Dienstleistung, plus 3.2 Stunden strukturierte Weiterbildung — also 36.8 Stunden total.""},{""role"":""user"",""message"":""Und bei 60%?""},  {""role"":""assistant"",""message"":""Bei 60% wären es 25.2 Stunden Dienstleistung und 2.4 Stunden Weiterbildung, total 27.6 Stunden.""}]"
 "Wie lange habe ich einen automatischen Gehaltsanstieg als Assistenzärztin?","Mentions automatic salary increases during the first six years of Weiterbildung"
 "Welchen Lohn erhalte ich ab dem 7. Weiterbildungsjahr?","Mentions salary according to GAV criteria from the 7th year of Weiterbildung"
 "Gibt es einen Teuerungsausgleich?","Acknowledges no fixed answer; references yearly announcements; ideally mentions 2024 value of CHF 325 per year"

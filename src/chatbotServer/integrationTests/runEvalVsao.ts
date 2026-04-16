@@ -16,6 +16,7 @@ import { ChromaClient, Collection } from 'chromadb';
 import createChromaClient from '../../shared/createChromaClient.js';
 import getOrCreateChromaCollection from '../../shared/getOrCreateChromaCollection.js';
 import answerQuestion from '../answerQuestion.js';
+import type { HistoryEntry } from '../types.js';
 import {
   TestCase, TestResult, collectStream, assessQuality, writeResults, averageScore,
 } from './testUtils.js';
@@ -81,9 +82,10 @@ async function runTestCase(
   chromaCollection: Collection,
   jinaApiKey: string,
 ): Promise<TestResult> {
+  const history: HistoryEntry[] = testCase.history ? JSON.parse(testCase.history) as HistoryEntry[] : [];
   const stream = await answerQuestion({
     question: testCase.userInput,
-    history: [],
+    history,
     completionsClient,
     jinaApiKey,
     chromaCollection,

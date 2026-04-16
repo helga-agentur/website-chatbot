@@ -11,6 +11,8 @@ import Anthropic from '@anthropic-ai/sdk';
 export interface TestCase {
   userInput: string;
   expectedOutput: string;
+  /** Optional JSON-encoded HistoryEntry[] to simulate a prior conversation. */
+  history?: string;
 }
 
 /**
