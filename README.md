@@ -1,6 +1,6 @@
 # Intro
 
-[Chroma](https://www.trychroma.com/) and [ChatGPT](https://chatgpt.com/) based chatbot. Provides
+[Chroma](https://www.trychroma.com/), [Claude](https://www.anthropic.com/) and [Jina AI](https://jina.ai/) based chatbot. Provides
 the needed functionalities to answer questions based on a website's contents:
 
 1. A chatbot server: Uses RAG to answer a user's questions based on content queried from a Chroma
@@ -20,10 +20,10 @@ The endpoint is `/chat` and takes a JSON body with the following fields:
 
 - `question`: The question to answer
 - `history`: A list of previous messages, each with a `role` (either 'user' or 'assistant') and a
-`message` field; newest message first.
+`message` field; oldest message first.
 
-The response is a stream of chunks as returned by OpenAI's API. See the [reference implementation
-of the client](frontend/index.html). 
+The response is a plain text stream of chunks. See the [reference implementation
+of the client](frontend/index.html).
 
 One important thing to note: The history is currently stored on the client and can therefore
 be manipulated by the user. That should not be a big issue, as the user's input can never be
@@ -40,7 +40,12 @@ to Markdown, splits that markdown, embeds it and stores the chunks in a Chroma c
 Set the required variables in your `.env` file:
 
 ```bash
+# API key for Anthropic Claude — used by the chatbot server for completions
+ANTHROPIC_API_KEY=<key>
+# API key for Jina AI — used for embeddings (both server and fetcher) and HTML→text extraction
 JINA_API_KEY=<key>
+# API key for OpenAI — used by scrapino (the fetcher dependency) for PDF/document extraction;
+# only required when running the website fetcher, not the chatbot server
 OPENAI_API_KEY=<key>
 # The URL to the website you want to fetch
 WEBSITE_BASE_URL=<url>
@@ -77,11 +82,38 @@ to delete an existing collection and create a new, empty one.
 
 ## Chatbot Server
 
-To start the fetcher, run:
+To start the chatbot server, run:
 ```bash
 npx website-chatbot serve --env .env
 ```
 .env is the path to your .env file (relative to the current working directory).
+
+# Testing
+
+Unit tests:
+```bash
+npm test
+```
+
+Integration tests — no database required (uses a mock context file):
+```bash
+npm run test:csv
+```
+Reads from `testCases.csv`, runs each question against the static context in `testContext.md`,
+scores each response with Claude, and writes results to `testResults.csv` (0–10).
+
+Non-deterministic LLM-scored evaluation against live vsao-bern.ch data:
+```bash
+npm run eval:vsao
+```
+Reads from `evalCasesVsao.csv`, runs each question through the full RAG pipeline (Jina embeddings →
+Chroma query → Claude), scores each response with Claude Haiku, and writes results to
+`evalResultsVsao.csv`. Results vary between runs — not suitable as a CI gate.
+
+Required setup for `eval:vsao`:
+- A running Chroma server (`CHROMA_URL`, `CHROMA_COLLECTION_NAME` set in `.env`)
+- The collection must be populated with vsao-bern.ch content (run `npm run fetchWebsite` first)
+- `JINA_API_KEY`, `WEBSITE_BASE_URL`, and `WEBSITE_TOPIC` set in `.env`
 
 # Develop and Publish
 

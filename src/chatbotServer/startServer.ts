@@ -2,7 +2,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import express from 'express';
-import { OpenAI } from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import createChromaClient from '../shared/createChromaClient.js';
 import getOrCreateChromaCollection from '../shared/getOrCreateChromaCollection.js';
 import answerQuestion from './answerQuestion.js';
@@ -18,7 +18,8 @@ import log from '../shared/log.js';
  */
 export default async (): Promise<void> => {
   const envVariablesMap = {
-    openAIAPIKey: 'OPENAI_API_KEY',
+    anthropicApiKey: 'ANTHROPIC_API_KEY',
+    jinaApiKey: 'JINA_API_KEY',
     chromaCollectionName: 'CHROMA_COLLECTION_NAME',
     chromaURL: 'CHROMA_URL',
     serverPort: 'SERVER_PORT',
@@ -41,9 +42,7 @@ export default async (): Promise<void> => {
     chromaClient,
     collectionName: keys.chromaCollectionName,
   });
-  const openAIClient = new OpenAI({
-    apiKey: keys.openAIAPIKey,
-  });
+  const completionsClient = new Anthropic({ apiKey: keys.anthropicApiKey });
 
   const app = express();
   const basePath = dirname(fileURLToPath(new URL(import.meta.url)));
@@ -72,7 +71,7 @@ export default async (): Promise<void> => {
     }
     const { question } = body;
 
-    // Validate / whiteliste input strictly: We'll directly pass it to OpenAI
+    // Validate / whiteliste input strictly: We'll directly pass it to Claude
     let history: HistoryEntry[] = [];
     const isValidHistoryEntry = ({ role, message }: { role: string, message: string }): boolean => (
       (role === 'user' || role === 'assistant') && typeof message === 'string'
@@ -107,16 +106,16 @@ export default async (): Promise<void> => {
       const streamingAnswer = await answerQuestion({
         question,
         history,
-        openAIClient,
+        completionsClient,
+        jinaApiKey: keys.jinaApiKey,
         chromaCollection,
         requestID,
       });
       const answerChunks: string[] = [];
       // eslint-disable-next-line no-restricted-syntax
-      for await (const event of streamingAnswer) {
-        const content = event.choices[0]?.delta?.content || '';
-        response.write(content);
-        answerChunks.push(content);
+      for await (const chunk of streamingAnswer) {
+        response.write(chunk);
+        answerChunks.push(chunk);
       }
       log({
         requestID,

@@ -1,9 +1,8 @@
 import { Collection } from 'chromadb';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import queryKnowledgeBase from './queryKnowledgeBase.js';
 import getEmbeddings from '../shared/getEmbeddings.js';
 import convertContextToText from './convertContextToText.js';
-import generateSearchTerms from './generateSearchTerms.js';
 import createCompletion from './createCompletion.js';
 import type { HistoryEntry } from './types';
 import log from '../shared/log.js';
@@ -13,44 +12,30 @@ import log from '../shared/log.js';
  */
 export default async ({
   question,
-  openAIClient,
+  completionsClient,
+  jinaApiKey,
   history,
   chromaCollection,
   requestID,
-  improveSearchTerms = false,
 }: {
   question: string;
-  openAIClient: OpenAI;
+  completionsClient: Anthropic;
+  jinaApiKey: string;
   history: HistoryEntry[];
   chromaCollection: Collection;
   requestID: string;
-  improveSearchTerms?: boolean,
-}): Promise<AsyncIterable<OpenAI.ChatCompletionChunk>> => {
-  const beforeSearchTerms = new Date().getTime();
-
-  // That is a nice feature – but it costs between 500 and 1000ms. Don't use it for the moment.
-  const searchTerms = !improveSearchTerms
-    ? [question]
-    : [question, ...await generateSearchTerms({ openAIClient, question })];
-
-  log({
-    requestID,
-    message: `Search terms are ${JSON.stringify(searchTerms)}`,
-  });
+}): Promise<AsyncGenerator<string>> => {
   const beforeEmbedding = new Date().getTime();
-  log({
-    requestID,
-    message: `Generating search terms took ${(beforeEmbedding - beforeSearchTerms).toString()} ms.`,
-  });
 
   const [embeddedQuestion] = await getEmbeddings({
-    openAIClient,
-    content: [question, ...searchTerms],
+    jinaApiKey,
+    content: [question],
+    task: 'retrieval.query',
   });
   const afterEmbedding = new Date().getTime();
   log({
     requestID,
-    message: `Embedding the question and all search terms took ${(afterEmbedding - beforeEmbedding).toString()} ms.`,
+    message: `Embedding the question took ${(afterEmbedding - beforeEmbedding).toString()} ms.`,
   });
 
   const context = await queryKnowledgeBase({
@@ -72,16 +57,16 @@ export default async ({
     question,
     contextAsText,
     history,
-    openAIClient,
+    completionsClient,
   });
   const afterAnswer = new Date().getTime();
   log({
     requestID,
-    message: `Creating the completion from question, context and history on OpenAI took ${(afterAnswer - afterQuery).toString()} ms.`,
+    message: `Creating the completion took ${(afterAnswer - afterQuery).toString()} ms.`,
   });
   log({
     requestID,
-    message: `Answer started streaming after ${(new Date().getTime() - beforeSearchTerms).toString()} ms.`,
+    message: `Answer started streaming after ${(new Date().getTime() - beforeEmbedding).toString()} ms.`,
   });
 
   return streamingAnswer;

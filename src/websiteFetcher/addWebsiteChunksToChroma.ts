@@ -1,4 +1,3 @@
-import { OpenAI } from 'openai';
 import { Collection } from 'chromadb';
 import getEmbeddings from '../shared/getEmbeddings.js';
 
@@ -11,15 +10,15 @@ export default async ({
   chunks,
   url,
   date,
-  openAIClient,
+  jinaApiKey,
 }: {
   collection: Collection,
   chunks: string[],
   url: string,
   date: string | null,
-  openAIClient: OpenAI
+  jinaApiKey: string,
 }): Promise<void> => {
-  const embeddings = await getEmbeddings({ openAIClient, content: chunks });
+  const embeddings = await getEmbeddings({ jinaApiKey, content: chunks, task: 'retrieval.passage' });
   // Chroma does not like null as a date; map to a string if the date the website was published
   // is not known.
   const dateForChroma = date ?? '';

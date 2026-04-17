@@ -1,4 +1,3 @@
-import OpenAI from 'openai';
 import { Crawler, extractContent, type HandleSuccessParams } from 'scrapino';
 import { MarkdownTextSplitter } from 'langchain/text_splitter';
 import createChromaClient from '../shared/createChromaClient.js';
@@ -8,7 +7,7 @@ import addWebsiteChunksToChroma from './addWebsiteChunksToChroma.js';
 /**
  * The main file to fetch content from a website, convert and store it in Chroma:
  * - Reads env variables
- * - Sets up the clients we need (OpenAI, Chroma)
+ * - Sets up the clients we need (Chroma)
  * - Starts the crawler
  * - Handles the crawler's output by extracting content, splitting it and adding it to Chroma
  *
@@ -39,8 +38,6 @@ export default async ({
     });
   const keys = Object.fromEntries(envVariables);
 
-  // Setup the basic libraries we need
-  const openAIClient = new OpenAI();
   const chromaClient = createChromaClient({ chromaURL: keys.chromaURL });
   const chromaCollection = await getOrCreateCollection({
     chromaClient,
@@ -77,7 +74,7 @@ export default async ({
       chunks,
       url,
       date,
-      openAIClient,
+      jinaApiKey: keys.jinaAPIKey,
     });
   };
 

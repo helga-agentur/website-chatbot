@@ -1,4 +1,4 @@
-import { OpenAI } from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 /**
  * The question may contain a lot of not-so-relevant information and may be missing synonyms.
@@ -7,32 +7,26 @@ import { OpenAI } from 'openai';
  */
 export default async ({
   question,
-  openAIClient,
+  completionsClient,
 }: {
   question: string,
-  openAIClient: OpenAI
+  completionsClient: Anthropic
 }): Promise<string[]> => {
-  const completion = await openAIClient.chat.completions.create({
-    model: 'gpt-5-nano',
-    messages: [
-      {
-        role: 'developer',
-        // Source: https://python.langchain.com/v0.1/docs/use_cases/query_analysis/quickstart/
-        content: `
-          You are an expert at converting user questions terms for search engines.
-          Given a question, return a list of search terms optimized to retrieve the most
-          relevant results.
-          If there are acronyms or words you are not familiar with, do not try to rephrase them.
-          The current date is ${new Date().toISOString()}; if this is at the beginning of the year,
-          also use the previous year to create search terms.
-          Return the terms as a comma separated string.
-        `,
-      }, {
-        role: 'user',
-        content: question,
-      },
-    ],
+  const response = await completionsClient.messages.create({
+    model: 'claude-haiku-4-5',
+    max_tokens: 256,
+    system: `
+      You are an expert at converting user questions terms for search engines.
+      Given a question, return a list of search terms optimized to retrieve the most
+      relevant results.
+      If there are acronyms or words you are not familiar with, do not try to rephrase them.
+      The current date is ${new Date().toISOString()}; if this is at the beginning of the year,
+      also use the previous year to create search terms.
+      Return the terms as a comma separated string.
+    `,
+    messages: [{ role: 'user', content: question }],
   });
 
-  return completion.choices[0].message.content?.split(/\s*,\s*/) ?? [];
+  const text = response.content.find((b) => b.type === 'text')?.text ?? '';
+  return text.split(/\s*,\s*/).filter(Boolean);
 };

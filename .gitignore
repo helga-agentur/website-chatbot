@@ -136,3 +136,9 @@ dist
 .pnp.*
 
 chroma-data
+
+# Integration test results
+testResults.csv
+evalResultsVsao.csv
+
+.DS_Store
